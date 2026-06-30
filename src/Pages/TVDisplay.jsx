@@ -1,7 +1,7 @@
 // src/Pages/ImageHistory.jsx
 import { useEffect, useState } from 'react'
 import { getMediaList, pushToTV } from '../Services/mediaService'
-import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, Eye, FileStack  } from 'lucide-react'
+import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, Eye, FileStack, AlertTriangle } from 'lucide-react'
 
 const BASE_URL = 'https://localhost:7084'
 
@@ -24,9 +24,10 @@ export default function ImageHistory() {
   const [error, setError]           = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [pushingId, setPushingId]   = useState(null)
-  const [viewingId, setViewingId]   = useState(null) // id currently shown in the iframe modal
-  const [status, setStatus]         = useState(null) // { type, message }
-  const [filter, setFilter]         = useState('all') // 'all' | 'image' | 'video'
+  const [viewingId, setViewingId]   = useState(null)   // id currently shown in the iframe modal
+  const [confirmTarget, setConfirmTarget] = useState(null) // { id, fileName } pending delete confirmation
+  const [status, setStatus]         = useState(null)   // { type, message }
+  const [filter, setFilter]         = useState('all')  // 'all' | 'image' | 'video'
 
   const loadMedia = async () => {
     try {
@@ -56,13 +57,22 @@ export default function ImageHistory() {
     }
   }
 
-  const handleDelete = async (id, fileName) => {
-    if (!window.confirm(`Delete "${fileName}"?`)) return
+  // Opens the custom confirmation modal instead of window.confirm()
+  const requestDelete = (id, fileName) => {
+    setConfirmTarget({ id, fileName })
+  }
+
+  // Runs only after the user clicks "Yes, I'm sure" in the modal
+  const confirmDelete = async () => {
+    if (!confirmTarget) return
+    const { id, fileName } = confirmTarget
+    setConfirmTarget(null)
+
     try {
       setDeletingId(id)
       await deleteMedia(id)
       setMediaList(prev => prev.filter(m => m.id !== id))
-      setStatus({ type: 'success', message: `"${fileName}" deleted successfully.` })
+      setStatus({ type: 'danger', message: `"${fileName}" deleted successfully.` })
     } catch (err) {
       setStatus({ type: 'error', message: 'Delete failed. Please try again.' })
     } finally {
@@ -81,7 +91,7 @@ export default function ImageHistory() {
       {/* ── Topbar ── */}
       <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
         <div>
-          <h1 className="text-lg font-bold text-slate-800">Media History</h1>
+          <h1 className="text-lg font-bold text-slate-800">TV Display</h1>
           <p className="text-xs text-slate-400">All files uploaded and sent to TV screens.</p>
         </div>
         <button
@@ -98,23 +108,40 @@ export default function ImageHistory() {
         {/* ── Toast Notification ── */}
         {status && (
           <div
-            className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl text-sm font-semibold
-              transition-all duration-300 min-w-[280px] max-w-sm
-              ${status.type === 'success'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-rose-500 text-white'}`}
+            className={`fixed top-5 right-5 z-50 flex items-stretch bg-white rounded-2xl shadow-xl overflow-hidden
+              transition-all duration-300 min-w-[320px] max-w-sm
+              ${status.type === 'success' ? 'border-l-4 border-emerald-500' : 'border-l-4 border-rose-500'}`}
           >
-            {status.type === 'success'
-              ? <CheckCircle2 size={15} className="shrink-0" />
-              : <AlertCircle size={15} className="shrink-0" />
-            }
-            <span className="flex-1">{status.message}</span>
-            <button
-              onClick={() => setStatus(null)}
-              className="ml-1 hover:opacity-70 transition-opacity"
-            >
-              <X size={15} />
-            </button>
+            <div className="flex items-start gap-3.5 px-5 py-4 flex-1">
+              {/* Circular icon */}
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.6
+                  ${status.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'}`}
+              >
+                {status.type === 'success'
+                  ? <CheckCircle2 size={19} className="text-white" strokeWidth={2.5} />
+                  : <X size={19} className="text-white" strokeWidth={2.5} />
+                }
+              </div>
+
+              {/* Title + subtitle */}
+              <div className="flex-1 pt-0.5">
+                <p className="text-sm font-bold text-slate-800 mb-0.5">
+                  {status.type === 'success' ? 'Success' : status.type === 'danger' ? 'Deleted' : 'Error'}
+                </p>
+                <p className="text-sm text-slate-500 leading-snug">
+                  {status.message}
+                </p>
+              </div>
+
+              {/* Close button */}
+              <button
+                onClick={() => setStatus(null)}
+                className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer shrink-0"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
         )}
 
@@ -124,7 +151,7 @@ export default function ImageHistory() {
             {
               label: 'Total Files',
               value: mediaList.length,
-              icon: FileStack ,
+              icon: FileStack,
               iconBg: 'bg-indigo-50',
               iconColor: 'text-indigo-600',
               valueColor: 'text-indigo-600',
@@ -255,13 +282,6 @@ export default function ImageHistory() {
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setViewingId(media.id)}
-                      className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <Eye size={11} />
-                      View
-                    </button>
-                    <button
                       onClick={() => handlePushToTV(media.id, media.fileName)}
                       disabled={pushingId === media.id}
                       className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-indigo-600 border border-indigo-200 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
@@ -273,7 +293,7 @@ export default function ImageHistory() {
                       {pushingId === media.id ? 'Sending...' : 'Show on TV'}
                     </button>
                     <button
-                      onClick={() => handleDelete(media.id, media.fileName)}
+                      onClick={() => requestDelete(media.id, media.fileName)}
                       disabled={deletingId === media.id}
                       className="flex items-center gap-1 text-xs font-semibold text-rose-500 border border-rose-200 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
                     >
@@ -289,41 +309,53 @@ export default function ImageHistory() {
             ))}
           </div>
         )}
-      </main>
+      </main> 
 
-      {/* ── TV Preview Modal (iframe) ── */}
-      {viewingId !== null && (
+      {/* ── Delete Confirmation Modal ── */}
+      {confirmTarget && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6"
-          onClick={() => setViewingId(null)}
+          className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-6"
+          onClick={() => setConfirmTarget(null)}
         >
           <div
-            className="bg-slate-900 rounded-2xl overflow-hidden w-full max-w-3xl shadow-2xl"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative px-8 py-9"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal header */}
-            <div className="flex items-center justify-between px-5 py-3 bg-slate-800 border-b border-slate-700">
-              <div className="flex items-center gap-2 text-slate-200 text-sm font-semibold">
-                <Tv size={14} />
-                TV Preview · #{viewingId}
+            {/* Close X */}
+            <button
+              onClick={() => setConfirmTarget(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Alert icon */}
+            <div className="flex justify-center mb-5">
+              <div className="w-16 h-16 rounded-full border-[3px] border-rose-500 flex items-center justify-center">
+                <AlertTriangle size={28} className="text-rose-500" strokeWidth={2.2} />
               </div>
-              <button
-                onClick={() => setViewingId(null)}
-                className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <X size={16} />
-              </button>
             </div>
 
-            {/* Iframe showing /tv/{id} */}
-            <div className="aspect-video bg-black">
-              <iframe
-                key={viewingId}
-                src={`/tv/${viewingId}`}
-                title={`TV Screen preview for media ${viewingId}`}
-                className="w-full h-full border-0"
-                allow="autoplay"
-              />
+            {/* Message */}
+            <p className="text-center text-slate-500 text-base leading-snug mb-7">
+              Are you sure you want to delete{' '}
+              <span className="font-semibold text-slate-700">"{confirmTarget.fileName}"</span>?
+            </p>
+
+            {/* Buttons */}
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={confirmDelete}
+                className="bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors cursor-pointer"
+              >
+                Yes, I'm sure
+              </button>
+              <button
+                onClick={() => setConfirmTarget(null)}
+                className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors cursor-pointer"
+              >
+                No, cancel
+              </button>
             </div>
           </div>
         </div>

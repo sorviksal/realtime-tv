@@ -54,7 +54,6 @@ export default function UploadImage() {
   const handleRemove = () => {
     setFile(null)
     setPreview(null)
-    setUploadStatus(null)
     setFileName('')
     setFileExt('')
     if (inputRef.current) inputRef.current.value = ''
@@ -62,6 +61,7 @@ export default function UploadImage() {
 
   const handleReset = () => {
     handleRemove() // clears file, preview, fileName, fileExt
+    setUploadStatus(null)
     setCaption('')
     setDuration(10)
     setScreen('all')
@@ -76,18 +76,16 @@ export default function UploadImage() {
       setUploading(true)
       setUploadStatus(null)
 
-      // Build the final filename from the editable name + locked extension.
-      // Falls back to the original name if the field was cleared.
       const trimmedName = fileName.trim()
       const finalName = trimmedName ? `${trimmedName}${fileExt}` : file.name
       const renamedFile = new File([file], finalName, { type: file.type })
 
-      // Call the API — passes the renamed file + optional metadata
       const result = await uploadMedia(renamedFile, caption, duration, screen)
 
       setUploadStatus({ type: 'success', message: `${isVideo(file) ? 'Video' : 'Image'} uploaded and sent to TV successfully!` })
       handleReset()
       console.log('Upload result:', result)
+      setTimeout(() => setUploadStatus(null), 3000)
     } catch (error) {
       setUploadStatus({ type: 'error', message: error.message || 'Upload failed. Please try again.' })
     } finally {
@@ -101,36 +99,12 @@ export default function UploadImage() {
       {/* ── Topbar ── */}
       <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
         <div>
-          <h1 className="text-lg font-bold text-slate-800">Upload New Image</h1>
-          <p className="text-xs text-slate-400">Upload an image to display on TV in real-time.</p>
+          <h1 className="text-lg font-bold text-slate-800">Upload New Media</h1>
+          <p className="text-xs text-slate-400">Upload a Media to display on TV in real-time.</p>
         </div>
       </header>
 
       <main className="p-8 max-w-7xl mx-auto">
-
-        {/* ── Status Banner ── */}
-        {uploadStatus && (
-          <div
-            className={`flex items-center gap-3 px-5 py-3.5 rounded-xl mb-6 text-sm font-semibold
-              ${uploadStatus.type === 'success'
-                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                : 'bg-rose-50 text-rose-700 border border-rose-200'
-              }`}
-          >
-            {uploadStatus.type === 'success'
-              ? <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-              : <AlertCircle size={16} className="text-rose-500 shrink-0" />
-            }
-            {uploadStatus.message}
-            <button
-              onClick={() => setUploadStatus(null)}
-              className="ml-auto text-slate-400 hover:text-slate-600"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        )}
-
         {/* ── Drop Zone ── */}
         <div
           onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
@@ -153,7 +127,7 @@ export default function UploadImage() {
           <div className="w-16 h-16 rounded-2xl bg-indigo-100 flex items-center justify-center mb-4">
             <Upload size={28} className="text-indigo-500" />
           </div>
-          <p className="text-base font-bold text-slate-700 mb-1">Drag & drop an image or video here</p>
+          <p className="text-base font-bold text-slate-700 mb-1">Drop an image or video here</p>
           <p className="text-sm text-slate-400 mb-5">or</p>
           <button
             onClick={(e) => { e.stopPropagation(); inputRef.current.click() }}
@@ -237,7 +211,7 @@ export default function UploadImage() {
           >
             {uploading
               ? <><Loader2 size={15} className="animate-spin" /> Uploading...</>
-              : <><Upload size={15} /> Upload & Send to TV</>
+              : <><Upload size={15} /> Upload</>
             }
           </button>
         </div>
