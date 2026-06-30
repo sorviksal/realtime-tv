@@ -25,7 +25,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }) {
           <img src={logo} alt='aeu university'/>
         </div>
         <div>
-          <p className="text-sm font-bold text-slate-800 leading-tight">Image to TV</p>
+          <p className="text-sm font-bold text-slate-800 leading-tight">AEU LiveScreen System</p>
           <p className="text-[11px] text-slate-400 leading-tight">Real-Time Web Application</p>
         </div>
       </div>
