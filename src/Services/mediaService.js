@@ -1,7 +1,7 @@
 // src/Services/mediaService.js
 import * as signalR from '@microsoft/signalr'
 
-const BASE_URL = 'https://localhost:7084'
+export const BASE_URL = 'https://ads.palsatya.site'
 
 // ─── SignalR Connection (singleton) ───────────────────────────────────────────
 let connection = null

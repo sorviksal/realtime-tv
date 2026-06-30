@@ -1,9 +1,7 @@
 // src/Pages/ImageHistory.jsx
 import { useEffect, useState } from 'react'
-import { getMediaList, pushToTV } from '../Services/mediaService'
+import { getMediaList, pushToTV, BASE_URL } from '../Services/mediaService'
 import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, Eye, FileStack  } from 'lucide-react'
-
-const BASE_URL = 'https://localhost:7084'
 
 const deleteMedia = async (id) => {
   const res = await fetch(`${BASE_URL}/api/Media/${id}`, { method: 'DELETE' })

@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-
-const BASE_URL = 'https://localhost:7084'
+import { BASE_URL } from '../Services/mediaService'
 
 const mediaUrl = (fileUrl) => `${BASE_URL}${fileUrl.startsWith('/') ? '' : '/'}${fileUrl}`
 
