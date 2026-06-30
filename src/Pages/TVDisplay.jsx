@@ -1,12 +1,7 @@
 // src/Pages/ImageHistory.jsx
 import { useEffect, useState } from 'react'
-<<<<<<< HEAD
 import { getMediaList, pushToTV, BASE_URL } from '../Services/mediaService'
-import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, Eye, FileStack  } from 'lucide-react'
-=======
-import { getMediaList, pushToTV } from '../Services/mediaService'
 import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, Eye, FileStack, AlertTriangle } from 'lucide-react'
->>>>>>> main
 
 const deleteMedia = async (id) => {
   const res = await fetch(`${BASE_URL}/api/Media/${id}`, { method: 'DELETE' })
@@ -75,13 +70,8 @@ export default function ImageHistory() {
       setDeletingId(id)
       await deleteMedia(id)
       setMediaList(prev => prev.filter(m => m.id !== id))
-<<<<<<< HEAD
-      setStatus({ type: 'success', message: `"${fileName}" deleted successfully.` })
-    } catch {
-=======
       setStatus({ type: 'danger', message: `"${fileName}" deleted successfully.` })
     } catch (err) {
->>>>>>> main
       setStatus({ type: 'error', message: 'Delete failed. Please try again.' })
     } finally {
       setDeletingId(null)
@@ -116,17 +106,9 @@ export default function ImageHistory() {
         {/* ── Toast Notification ── */}
         {status && (
           <div
-<<<<<<< HEAD
-            className={`fixed top-5 right-1/2 translate-x-1/2 sm:translate-x-0 sm:right-5 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl text-sm font-semibold
-              transition-all duration-300 min-w-[280px] max-w-sm w-[calc(100%-2rem)] sm:w-auto
-              ${status.type === 'success'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-rose-500 text-white'}`}
-=======
             className={`fixed top-5 right-5 z-50 flex items-stretch bg-white rounded-2xl shadow-xl overflow-hidden
               transition-all duration-300 min-w-[320px] max-w-sm
               ${status.type === 'success' ? 'border-l-4 border-emerald-500' : 'border-l-4 border-rose-500'}`}
->>>>>>> main
           >
             <div className="flex items-start gap-3.5 px-5 py-4 flex-1">
               {/* Circular icon */}
@@ -330,13 +312,8 @@ export default function ImageHistory() {
       {/* ── Delete Confirmation Modal ── */}
       {confirmTarget && (
         <div
-<<<<<<< HEAD
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 sm:p-6"
-          onClick={() => setViewingId(null)}
-=======
           className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-6"
           onClick={() => setConfirmTarget(null)}
->>>>>>> main
         >
           <div
             className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative px-8 py-9"

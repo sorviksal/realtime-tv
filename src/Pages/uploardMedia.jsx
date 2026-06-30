@@ -103,7 +103,6 @@ export default function UploadImage() {
         </div>
       </header>
 
-<<<<<<< HEAD
       <main className="p-4 sm:p-8 max-w-7xl mx-auto">
 
         {/* ── Status Banner ── */}
@@ -128,10 +127,6 @@ export default function UploadImage() {
             </button>
           </div>
         )}
-
-=======
-      <main className="p-8 max-w-7xl mx-auto">
->>>>>>> main
         {/* ── Drop Zone ── */}
         <div
           onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
