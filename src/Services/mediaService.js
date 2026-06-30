@@ -42,6 +42,36 @@ export const getMediaList = async () => {
   return await response.json()
 }
 
+// ─── GET media filtered by type (image | video) ───────────────────────────────
+export const getMediaByType = async (fileType) => {
+  const response = await fetch(`${BASE_URL}/api/Media/type/${fileType}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${fileType} media: ${response.status} ${response.statusText}`)
+  }
+
+  return await response.json()
+}
+
+// ─── Push a specific media item live to the TV ────────────────────────────────
+// Calls GET /api/Media/{id}, which the backend uses to re-broadcast that item
+// via SignalR ("ReceiveMedia") to all connected TV screens.
+export const pushToTV = async (id) => {
+  const response = await fetch(`${BASE_URL}/api/Media/${id}`, {
+    method: 'GET',
+    headers: { accept: '*/*' },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to push media #${id} to TV: ${response.status} ${response.statusText}`)
+  }
+
+  return await response.json()
+}
+
 // ─── POST upload image ────────────────────────────────────────────────────────
 // Sends the file + optional metadata (caption, duration, screen) to the API.
 // The API should handle broadcasting via SignalR on the backend.

@@ -1,6 +1,6 @@
 // src/Pages/UploadImage.jsx
 import { useState, useRef } from 'react'
-import { Upload, ImageIcon, Clock, Monitor, X, Trash2, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, ImageIcon, Clock, Monitor, X, Trash2, CheckCircle2, AlertCircle, Loader2, Pencil } from 'lucide-react'
 import { uploadMedia } from '../Services/mediaService'
 
 export default function UploadImage() {
@@ -12,6 +12,8 @@ export default function UploadImage() {
   const [screen, setScreen] = useState('all')
   const [uploading, setUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState(null) // { type: 'success' | 'error', message: string }
+  const [fileName, setFileName] = useState('')       // editable name (without extension)
+  const [fileExt, setFileExt] = useState('')          // locked extension, e.g. ".png"
   const inputRef = useRef()
 
   const MAX_SIZE = 100 * 1024 * 1024 * 1024 // 100GB
@@ -33,6 +35,13 @@ export default function UploadImage() {
     setUploadStatus(null)
     setFile(f)
     setPreview(URL.createObjectURL(f))
+
+    // Split name and extension so the extension can't be edited away
+    const lastDot = f.name.lastIndexOf('.')
+    const baseName = lastDot > 0 ? f.name.slice(0, lastDot) : f.name
+    const ext = lastDot > 0 ? f.name.slice(lastDot) : ''
+    setFileName(baseName)
+    setFileExt(ext)
   }
 
   const handleDrop = (e) => {
@@ -46,11 +55,13 @@ export default function UploadImage() {
     setFile(null)
     setPreview(null)
     setUploadStatus(null)
+    setFileName('')
+    setFileExt('')
     if (inputRef.current) inputRef.current.value = ''
   }
 
   const handleReset = () => {
-    handleRemove()
+    handleRemove() // clears file, preview, fileName, fileExt
     setCaption('')
     setDuration(10)
     setScreen('all')
@@ -65,8 +76,14 @@ export default function UploadImage() {
       setUploading(true)
       setUploadStatus(null)
 
-      // Call the API — passes file + optional metadata
-      const result = await uploadMedia(file, caption, duration, screen)
+      // Build the final filename from the editable name + locked extension.
+      // Falls back to the original name if the field was cleared.
+      const trimmedName = fileName.trim()
+      const finalName = trimmedName ? `${trimmedName}${fileExt}` : file.name
+      const renamedFile = new File([file], finalName, { type: file.type })
+
+      // Call the API — passes the renamed file + optional metadata
+      const result = await uploadMedia(renamedFile, caption, duration, screen)
 
       setUploadStatus({ type: 'success', message: `${isVideo(file) ? 'Video' : 'Image'} uploaded and sent to TV successfully!` })
       handleReset()
@@ -140,7 +157,7 @@ export default function UploadImage() {
           <p className="text-sm text-slate-400 mb-5">or</p>
           <button
             onClick={(e) => { e.stopPropagation(); inputRef.current.click() }}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors cursor-pointer"
           >
             Choose File
           </button>
@@ -168,9 +185,27 @@ export default function UploadImage() {
                 />
               )}
               <div className="flex-1">
-                <p className="font-semibold text-slate-800 text-sm mb-1">{file.name}</p>
                 <p className="text-xs text-slate-400 mb-1">{formatSize(file.size)}</p>
                 <p className="text-xs text-slate-400 mb-3">{file.type}</p>
+
+                {/* Rename field */}
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  File Name
+                </label>
+                <div className="relative mb-4">
+                  <Pencil size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={fileName}
+                    onChange={(e) => setFileName(e.target.value)}
+                    placeholder="Enter a file name..."
+                    className="w-full pl-8 pr-16 py-2 text-sm text-slate-700 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-mono">
+                    {fileExt}
+                  </span>
+                </div>
+
                 <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold mb-4">
                   <CheckCircle2 size={14} className="text-emerald-500" />
                   Ready to upload
@@ -186,94 +221,19 @@ export default function UploadImage() {
             </div>
           </div>
         )}
-
-        {/* ── Options ── */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 space-y-6">
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* Select TV Screen */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Select TV Screen
-                <span className="text-slate-400 font-normal ml-1">(Optional)</span>
-              </label>
-              <div className="relative">
-                <Monitor size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <select
-                  value={screen}
-                  onChange={(e) => setScreen(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 text-sm text-slate-700 bg-white border border-slate-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
-                >
-                  <option value="all">All Screens</option>
-                  <option value="screen1">Screen 1</option>
-                  <option value="screen2">Screen 2</option>
-                  <option value="lobby">Lobby Screen</option>
-                </select>
-                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M2 4l4 4 4-4" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Display Duration */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Display Duration
-                <span className="text-slate-400 font-normal ml-1">(Optional)</span>
-              </label>
-              <div className="relative">
-                <Clock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="number"
-                  min={1}
-                  max={3600}
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="w-full pl-9 pr-20 py-2.5 text-sm text-slate-700 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
-                />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">seconds</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Caption */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-              Caption
-              <span className="text-slate-400 font-normal ml-1">(Optional)</span>
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                maxLength={100}
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="Enter a caption for this image..."
-                className="w-full px-4 py-2.5 pr-16 text-sm text-slate-700 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
-              />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">
-                {caption.length} / 100
-              </span>
-            </div>
-          </div>
-        </div>
-
         {/* ── Action Buttons ── */}
         <div className="flex items-center justify-between">
           <button
             onClick={handleReset}
             disabled={uploading}
-            className="px-6 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             Reset
           </button>
           <button
             onClick={handleUpload}
             disabled={!file || uploading}
-            className="flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-colors"
+            className="flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-colors cursor-pointer"
           >
             {uploading
               ? <><Loader2 size={15} className="animate-spin" /> Uploading...</>
