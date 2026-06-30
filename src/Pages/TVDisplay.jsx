@@ -32,21 +32,21 @@ export default function ImageHistory() {
       setError(null)
       const data = await getMediaList()
       setMediaList(data)
-    } catch (err) {
+    } catch {
       setError('Failed to load media history. Make sure the API is running.')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { loadMedia() }, [])
+  useEffect(() => { loadMedia() }, []) // eslint-disable-line react-hooks/set-state-in-effect
 
   const handlePushToTV = async (id, fileName) => {
     try {
       setPushingId(id)
       await pushToTV(id)
       setStatus({ type: 'success', message: `"${fileName}" is now showing on TV.` })
-    } catch (err) {
+    } catch {
       setStatus({ type: 'error', message: 'Failed to send to TV. Please try again.' })
     } finally {
       setPushingId(null)
@@ -61,7 +61,7 @@ export default function ImageHistory() {
       await deleteMedia(id)
       setMediaList(prev => prev.filter(m => m.id !== id))
       setStatus({ type: 'success', message: `"${fileName}" deleted successfully.` })
-    } catch (err) {
+    } catch {
       setStatus({ type: 'error', message: 'Delete failed. Please try again.' })
     } finally {
       setDeletingId(null)
@@ -77,7 +77,7 @@ export default function ImageHistory() {
     <div className="min-h-screen bg-slate-50">
 
       {/* ── Topbar ── */}
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10">
         <div>
           <h1 className="text-lg font-bold text-slate-800">Media History</h1>
           <p className="text-xs text-slate-400">All files uploaded and sent to TV screens.</p>
@@ -91,13 +91,13 @@ export default function ImageHistory() {
         </button>
       </header>
 
-      <main className="p-8 max-w-7xl mx-auto">
+      <main className="p-4 sm:p-8 max-w-7xl mx-auto">
 
         {/* ── Toast Notification ── */}
         {status && (
           <div
-            className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl text-sm font-semibold
-              transition-all duration-300 min-w-[280px] max-w-sm
+            className={`fixed top-5 right-1/2 translate-x-1/2 sm:translate-x-0 sm:right-5 z-50 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl text-sm font-semibold
+              transition-all duration-300 min-w-[280px] max-w-sm w-[calc(100%-2rem)] sm:w-auto
               ${status.type === 'success'
                 ? 'bg-emerald-500 text-white'
                 : 'bg-rose-500 text-white'}`}
@@ -117,7 +117,7 @@ export default function ImageHistory() {
         )}
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
             {
               label: 'Total Files',
@@ -251,7 +251,7 @@ export default function ImageHistory() {
                   </p>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       onClick={() => setViewingId(media.id)}
                       className="flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
@@ -292,7 +292,7 @@ export default function ImageHistory() {
       {/* ── TV Preview Modal (iframe) ── */}
       {viewingId !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6"
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 sm:p-6"
           onClick={() => setViewingId(null)}
         >
           <div

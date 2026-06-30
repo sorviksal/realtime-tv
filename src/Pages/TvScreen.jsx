@@ -21,6 +21,7 @@ export default function TVScreenById() {
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
+    setLoading(true)
     try {
       setError(null)
       const data = await getMediaById(id)
@@ -33,10 +34,7 @@ export default function TVScreenById() {
   }, [id])
 
   // Initial load
-  useEffect(() => {
-    setLoading(true)
-    load()
-  }, [load])
+  useEffect(() => { load() }, [load]) // eslint-disable-line react-hooks/set-state-in-effect
 
   // Poll every 15s in case the media for this ID is replaced/updated server-side.
   // (Remove this if your API never updates an existing ID's file.)

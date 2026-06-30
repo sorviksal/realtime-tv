@@ -1,6 +1,6 @@
 // src/Pages/UploadImage.jsx
 import { useState, useRef } from 'react'
-import { Upload, ImageIcon, Clock, Monitor, X, Trash2, CheckCircle2, AlertCircle, Loader2, Pencil } from 'lucide-react'
+import { Upload, X, Trash2, CheckCircle2, AlertCircle, Loader2, Pencil } from 'lucide-react'
 import { uploadMedia } from '../Services/mediaService'
 
 export default function UploadImage() {
@@ -20,7 +20,6 @@ export default function UploadImage() {
   const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime']
 
   const isVideo = (f) => f?.type.startsWith('video/')
-  const isImage = (f) => f?.type.startsWith('image/')
 
   const handleFile = (f) => {
     if (!f) return
@@ -99,14 +98,14 @@ export default function UploadImage() {
     <div className="min-h-screen bg-slate-50">
 
       {/* ── Topbar ── */}
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 sm:px-8 sticky top-0 z-10">
         <div>
           <h1 className="text-lg font-bold text-slate-800">Upload New Image</h1>
           <p className="text-xs text-slate-400">Upload an image to display on TV in real-time.</p>
         </div>
       </header>
 
-      <main className="p-8 max-w-7xl mx-auto">
+      <main className="p-4 sm:p-8 max-w-7xl mx-auto">
 
         {/* ── Status Banner ── */}
         {uploadStatus && (
@@ -137,7 +136,7 @@ export default function UploadImage() {
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
           onClick={() => inputRef.current.click()}
-          className={`w-full rounded-2xl border-2 border-dashed cursor-pointer transition-all flex flex-col items-center justify-center py-5 mb-8
+          className={`w-full rounded-2xl border-2 border-dashed cursor-pointer transition-all flex flex-col items-center justify-center py-10 sm:py-16 px-4 mb-8
             ${dragging
               ? 'border-indigo-400 bg-indigo-50'
               : 'border-indigo-200 bg-indigo-50/40 hover:bg-indigo-50 hover:border-indigo-300'
@@ -170,18 +169,18 @@ export default function UploadImage() {
             <h2 className="text-sm font-bold text-slate-800 mb-4">
               {isVideo(file) ? 'Video Preview' : 'Image Preview'}
             </h2>
-            <div className="flex items-start gap-5">
+            <div className="flex flex-col sm:flex-row items-start gap-5">
               {isVideo(file) ? (
                 <video
                   src={preview}
                   controls
-                  className="w-48 h-32 object-cover rounded-xl border border-slate-200 shrink-0"
+                  className="w-full sm:w-48 h-48 sm:h-32 object-cover rounded-xl border border-slate-200 shrink-0"
                 />
               ) : (
                 <img
                   src={preview}
                   alt="preview"
-                  className="w-48 h-32 object-cover rounded-xl border border-slate-200 shrink-0"
+                  className="w-full sm:w-48 h-48 sm:h-32 object-cover rounded-xl border border-slate-200 shrink-0"
                 />
               )}
               <div className="flex-1">
@@ -222,7 +221,7 @@ export default function UploadImage() {
           </div>
         )}
         {/* ── Action Buttons ── */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <button
             onClick={handleReset}
             disabled={uploading}
@@ -233,7 +232,7 @@ export default function UploadImage() {
           <button
             onClick={handleUpload}
             disabled={!file || uploading}
-            className="flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-colors cursor-pointer"
+            className="flex items-center justify-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-colors cursor-pointer"
           >
             {uploading
               ? <><Loader2 size={15} className="animate-spin" /> Uploading...</>
