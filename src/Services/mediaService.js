@@ -1,7 +1,7 @@
 // src/Services/mediaService.js
 import * as signalR from '@microsoft/signalr'
 
-export const BASE_URL = 'https://ads.palsatya.site'
+export const BASE_URL = import.meta.env.VITE_API_URL
 
 // ─── SignalR Connection (singleton) ───────────────────────────────────────────
 let connection = null

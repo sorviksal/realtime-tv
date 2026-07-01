@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { User, Lock, Loader2 } from "lucide-react";
 import logo from '../assets/aeu.png'
+const API_URL = import.meta.env.VITE_API_URL
 
 const StaffLogin = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const StaffLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/Login/StaffLogin", {
+      const response = await fetch(`${API_URL}/Login/StaffLogin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
