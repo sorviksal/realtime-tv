@@ -1,9 +1,7 @@
 // src/Pages/ImageHistory.jsx
 import { useEffect, useState } from 'react'
-import { getMediaList, pushToTV } from '../Services/mediaService'
+import { getMediaList, pushToTV, BASE_URL } from '../Services/mediaService'
 import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, Eye, FileStack, AlertTriangle } from 'lucide-react'
-
-const BASE_URL = 'https://localhost:7084'
 
 const deleteMedia = async (id) => {
   const res = await fetch(`${BASE_URL}/api/Media/${id}`, { method: 'DELETE' })
@@ -28,6 +26,7 @@ export default function ImageHistory() {
   const [confirmTarget, setConfirmTarget] = useState(null) // { id, fileName } pending delete confirmation
   const [status, setStatus]         = useState(null)   // { type, message }
   const [filter, setFilter]         = useState('all')  // 'all' | 'image' | 'video'
+  const [cooldowns, setCooldowns]   = useState({})
 
   const loadMedia = async () => {
     try {
@@ -35,24 +34,27 @@ export default function ImageHistory() {
       setError(null)
       const data = await getMediaList()
       setMediaList(data)
-    } catch (err) {
+    } catch {
       setError('Failed to load media history. Make sure the API is running.')
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { loadMedia() }, [])
+  useEffect(() => { loadMedia() }, []) // eslint-disable-line react-hooks/set-state-in-effect
 
   const handlePushToTV = async (id, fileName) => {
+    if (cooldowns[id]) return
     try {
       setPushingId(id)
       await pushToTV(id)
       setStatus({ type: 'success', message: `"${fileName}" is now showing on TV.` })
-    } catch (err) {
+    } catch {
       setStatus({ type: 'error', message: 'Failed to send to TV. Please try again.' })
     } finally {
       setPushingId(null)
+      setCooldowns(prev => ({ ...prev, [id]: true }))
+      setTimeout(() => setCooldowns(prev => ({ ...prev, [id]: false })), 5000)
       setTimeout(() => setStatus(null), 3000)
     }
   }
@@ -89,7 +91,7 @@ export default function ImageHistory() {
     <div className="min-h-screen bg-slate-50">
 
       {/* ── Topbar ── */}
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10">
         <div>
           <h1 className="text-lg font-bold text-slate-800">TV Display</h1>
           <p className="text-xs text-slate-400">All files uploaded and sent to TV screens.</p>
@@ -103,7 +105,7 @@ export default function ImageHistory() {
         </button>
       </header>
 
-      <main className="p-8 max-w-7xl mx-auto">
+      <main className="p-4 sm:p-8 max-w-7xl mx-auto">
 
         {/* ── Toast Notification ── */}
         {status && (
@@ -146,7 +148,7 @@ export default function ImageHistory() {
         )}
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
             {
               label: 'Total Files',
@@ -280,10 +282,10 @@ export default function ImageHistory() {
                   </p>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       onClick={() => handlePushToTV(media.id, media.fileName)}
-                      disabled={pushingId === media.id}
+                      disabled={pushingId === media.id || cooldowns[media.id]}
                       className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-indigo-600 border border-indigo-200 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
                     >
                       {pushingId === media.id

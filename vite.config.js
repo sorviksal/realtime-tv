@@ -9,6 +9,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   build: {
+    sourcemap: true,
     rollupOptions: {
       onwarn(warning, warn) {
         // Suppress noisy third-party annotation warnings (e.g. @microsoft/signalr)
