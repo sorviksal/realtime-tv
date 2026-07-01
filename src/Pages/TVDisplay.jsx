@@ -26,6 +26,7 @@ export default function ImageHistory() {
   const [confirmTarget, setConfirmTarget] = useState(null) // { id, fileName } pending delete confirmation
   const [status, setStatus]         = useState(null)   // { type, message }
   const [filter, setFilter]         = useState('all')  // 'all' | 'image' | 'video'
+  const [cooldowns, setCooldowns]   = useState({})
 
   const loadMedia = async () => {
     try {
@@ -43,6 +44,7 @@ export default function ImageHistory() {
   useEffect(() => { loadMedia() }, []) // eslint-disable-line react-hooks/set-state-in-effect
 
   const handlePushToTV = async (id, fileName) => {
+    if (cooldowns[id]) return
     try {
       setPushingId(id)
       await pushToTV(id)
@@ -51,6 +53,8 @@ export default function ImageHistory() {
       setStatus({ type: 'error', message: 'Failed to send to TV. Please try again.' })
     } finally {
       setPushingId(null)
+      setCooldowns(prev => ({ ...prev, [id]: true }))
+      setTimeout(() => setCooldowns(prev => ({ ...prev, [id]: false })), 5000)
       setTimeout(() => setStatus(null), 3000)
     }
   }
@@ -281,7 +285,7 @@ export default function ImageHistory() {
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       onClick={() => handlePushToTV(media.id, media.fileName)}
-                      disabled={pushingId === media.id}
+                      disabled={pushingId === media.id || cooldowns[media.id]}
                       className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-indigo-600 border border-indigo-200 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
                     >
                       {pushingId === media.id
