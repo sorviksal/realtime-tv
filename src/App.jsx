@@ -5,6 +5,7 @@ import Sidebar from './Components/sidebar'
 import UploadImage from './Pages/uploardMedia'
 import TVScreen from './Pages/TvScreen'
 import TVScreenById from './Pages/TVDisplay'
+import Login from './Pages/login'
 import './index.css'
 
 function App() {
@@ -12,10 +13,11 @@ function App() {
 
   return (
     <Routes>
-      {/* Full-screen TV route — no sidebar, just the display */}
+      {/* Full screen routes */}
+      <Route path="/login" element={<Login />} />
       <Route path="/tv/:id" element={<TVScreen />} />
 
-      {/* Admin/dashboard layout with sidebar */}
+      {/* Dashboard Layout */}
       <Route
         path="/*"
         element={
@@ -24,14 +26,15 @@ function App() {
               isMobileOpen={mobileSidebarOpen}
               onMobileClose={() => setMobileSidebarOpen(false)}
             />
+
             <div className="flex-1 overflow-y-auto bg-slate-50">
-              {/* Mobile hamburger */}
               <button
                 onClick={() => setMobileSidebarOpen(true)}
                 className="fixed top-4 left-4 z-30 lg:hidden bg-white border border-slate-200 rounded-xl p-2 shadow-sm cursor-pointer"
               >
                 <Menu size={20} className="text-slate-600" />
               </button>
+
               <Routes>
                 <Route path="/" element={<TVScreenById />} />
                 <Route path="/display" element={<UploadImage />} />
