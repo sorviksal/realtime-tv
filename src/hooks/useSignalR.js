@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import * as signalR from '@microsoft/signalr'
 
-const HUB_URL = 'https://localhost:7084/mediaHub'
+const HUB_URL = `${import.meta.env.VITE_API_URL}/mediaHub`
 
 // screenName: TV name string (e.g. "STEM TV"), or null to only get "all" broadcasts
 export function useMediaHub(screenName, onMediaPushed) {

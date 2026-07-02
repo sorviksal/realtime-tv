@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import * as signalR from '@microsoft/signalr'
 
-const HUB_URL = 'https://localhost:7084/mediaHub'
+const HUB_URL = `${import.meta.env.VITE_API_URL}/mediaHub`
 
 export function useScreenPresence(onScreenOffline) {
   const callbackRef = useRef(onScreenOffline)

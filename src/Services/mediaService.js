@@ -1,7 +1,7 @@
 // src/Services/mediaService.js
 import * as signalR from '@microsoft/signalr'
 
-const BASE_URL = 'https://localhost:7084'
+export const BASE_URL = import.meta.env.VITE_API_URL
 
 // ─── SignalR Connection (singleton) ───────────────────────────────────────────
 let connection = null

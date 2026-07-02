@@ -3,7 +3,7 @@ import { getMediaList, pushToTV } from '../Services/mediaService'
 import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, FileStack, AlertTriangle, MapPin, Layers, Check } from 'lucide-react'
 import { useLiveMedia } from '../context/LiveMediaContext'
 import { useScreenPresence } from '../hooks/useScreenPresence'
-const BASE_URL = 'https://localhost:7084'
+const BASE_URL = import.meta.env.VITE_API_URL
 
 const deleteMedia = async (id) => {
   const res = await fetch(`${BASE_URL}/api/Media/${id}`, { method: 'DELETE' })

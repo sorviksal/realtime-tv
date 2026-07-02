@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Tv, Plus, Trash2, ToggleLeft, ToggleRight, CheckCircle2, X, Copy, ExternalLink, MapPin, Layers } from 'lucide-react'
 
-const BASE_URL = 'https://localhost:7084'
+const BASE_URL = import.meta.env.VITE_API_URL
 
 const api = {
   list: async () => {
