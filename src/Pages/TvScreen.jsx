@@ -39,8 +39,6 @@ export default function TVScreenById() {
     load()
   }, [load])
 
-  // Poll every 15s in case the media for this ID is replaced/updated server-side.
-  // (Remove this if your API never updates an existing ID's file.)
   useEffect(() => {
     const interval = setInterval(load, 15000)
     return () => clearInterval(interval)

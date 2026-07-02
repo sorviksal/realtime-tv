@@ -1,26 +1,60 @@
-// src/hooks/useSignalR.js
-import { useEffect, useState } from "react";
-import * as signalR from "@microsoft/signalr";
+import { useEffect, useRef } from 'react'
+import * as signalR from '@microsoft/signalr'
 
-export function useSignalR() {
-  const [latestImage, setLatestImage] = useState(null);
+const HUB_URL = 'https://localhost:7084/mediaHub'
+
+// screenName: TV name string (e.g. "STEM TV"), or null to only get "all" broadcasts
+export function useMediaHub(screenName, onMediaPushed) {
+  const connectionRef = useRef(null)
+  const callbackRef = useRef(onMediaPushed)
+  const currentGroupRef = useRef(null)
+  callbackRef.current = onMediaPushed
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7084/mediaHub", {
-        withCredentials: true, // matches AllowCredentials()
-      })
+      .withUrl(HUB_URL, { withCredentials: true })
       .withAutomaticReconnect()
-      .build();
+      .build()
 
-    connection.on("ReceiveMedia", (imageUrl) => {
-      setLatestImage(imageUrl);
-    });
+    connection.on('ReceiveMedia', (payload) => callbackRef.current?.(payload))
 
-    connection.start().catch(console.error);
+    connection.start().catch((err) => console.error('SignalR connection failed:', err))
+    connection.onreconnected(() => {
+      if (currentGroupRef.current) {
+        connection.invoke('JoinScreen', currentGroupRef.current).catch(() => {})
+      }
+    })
 
-    return () => connection.stop();
-  }, []);
+    connectionRef.current = connection
+    return () => { connection.stop() }
+  }, [])
 
-  return latestImage;
+  useEffect(() => {
+    const connection = connectionRef.current
+    if (!connection) return
+
+    const join = async () => {
+      if (connection.state !== signalR.HubConnectionState.Connected) {
+        await new Promise((resolve) => {
+          const check = setInterval(() => {
+            if (connection.state === signalR.HubConnectionState.Connected) {
+              clearInterval(check)
+              resolve()
+            }
+          }, 100)
+        })
+      }
+      if (currentGroupRef.current && currentGroupRef.current !== screenName) {
+        await connection.invoke('LeaveScreen', currentGroupRef.current).catch(() => {})
+      }
+      if (screenName) {
+        await connection.invoke('JoinScreen', screenName).catch(() => {})
+      }
+      currentGroupRef.current = screenName
+    }
+
+    join()
+  }, [screenName])
+
+  return connectionRef
 }

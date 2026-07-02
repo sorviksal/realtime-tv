@@ -56,13 +56,12 @@ export const getMediaByType = async (fileType) => {
   return await response.json()
 }
 
-// ─── Push a specific media item live to the TV ────────────────────────────────
-// Calls GET /api/Media/{id}, which the backend uses to re-broadcast that item
-// via SignalR ("ReceiveMedia") to all connected TV screens.
-export const pushToTV = async (id) => {
-  const response = await fetch(`${BASE_URL}/api/Media/${id}`, {
-    method: 'GET',
-    headers: { accept: '*/*' },
+// ─── Push a specific media item to one or more named TVs, or all ──────────────
+export const pushToTV = async (id, { screens = [], all = true } = {}) => {
+  const response = await fetch(`${BASE_URL}/api/Media/${id}/push`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ screens, all }),
   })
 
   if (!response.ok) {
@@ -71,8 +70,7 @@ export const pushToTV = async (id) => {
 
   return await response.json()
 }
-
-// ─── POST upload image ────────────────────────────────────────────────────────
+// ─── POST upload image ──
 // Sends the file + optional metadata (caption, duration, screen) to the API.
 // The API should handle broadcasting via SignalR on the backend.
 export const uploadMedia = async (file, caption = '', duration = 10, screen = 'all') => {
@@ -87,7 +85,6 @@ export const uploadMedia = async (file, caption = '', duration = 10, screen = 'a
   const response = await fetch(`${BASE_URL}/api/Media/upload`, {
     method: 'POST',
     body: formData,
-    // ⚠️ Do NOT set Content-Type manually — browser sets it automatically with boundary
   })
 
   if (!response.ok) {
