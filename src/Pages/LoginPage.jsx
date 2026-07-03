@@ -25,7 +25,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm">
         <div className="flex flex-col items-center mb-6">
-          <img src={logo} alt="AEU" className="w-16 h-16 mb-3" />
+          <img src={logo} alt="AEU" className="w-auto h-16 mb-3" />
           <h1 className="text-xl font-bold text-slate-800">AEU LiveScreen</h1>
           <p className="text-sm text-slate-400">Sign in to continue</p>
         </div>
