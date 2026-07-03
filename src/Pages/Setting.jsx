@@ -3,16 +3,21 @@ import { Tv, Plus, Trash2, ToggleLeft, ToggleRight, CheckCircle2, X, Copy, Exter
 
 const BASE_URL = import.meta.env.VITE_API_URL
 
+function authHeaders() {
+  const token = sessionStorage.getItem('ads2026_token')
+  return token ? { 'Authorization': `Bearer ${token}` } : {}
+}
+
 const api = {
   list: async () => {
-    const res = await fetch(`${BASE_URL}/api/TV`)
+    const res = await fetch(`${BASE_URL}/api/TV`, { headers: { ...authHeaders() } })
     if (!res.ok) throw new Error('Failed to load TVs')
     return res.json()
   },
   create: async (body) => {
     const res = await fetch(`${BASE_URL}/api/TV`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify(body),
     })
     const data = await res.json()
@@ -22,19 +27,19 @@ const api = {
   update: async (id, body) => {
     const res = await fetch(`${BASE_URL}/api/TV/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify(body),
     })
     if (!res.ok) throw new Error('Failed to update TV')
     return res.json()
   },
   toggle: async (id) => {
-    const res = await fetch(`${BASE_URL}/api/TV/${id}/toggle`, { method: 'PATCH' })
+    const res = await fetch(`${BASE_URL}/api/TV/${id}/toggle`, { method: 'PATCH', headers: { ...authHeaders() } })
     if (!res.ok) throw new Error('Failed to toggle TV')
     return res.json()
   },
   remove: async (id) => {
-    const res = await fetch(`${BASE_URL}/api/TV/${id}`, { method: 'DELETE' })
+    const res = await fetch(`${BASE_URL}/api/TV/${id}`, { method: 'DELETE', headers: { ...authHeaders() } })
     if (!res.ok) throw new Error('Failed to remove TV')
   },
 }

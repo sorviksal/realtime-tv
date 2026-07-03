@@ -3,7 +3,6 @@ import * as signalR from '@microsoft/signalr'
 
 const HUB_URL = `${import.meta.env.VITE_API_URL}/mediaHub`
 
-// screenName: TV name string (e.g. "STEM TV"), or null to only get "all" broadcasts
 export function useMediaHub(screenName, onMediaPushed) {
   const connectionRef = useRef(null)
   const callbackRef = useRef(onMediaPushed)
@@ -11,8 +10,12 @@ export function useMediaHub(screenName, onMediaPushed) {
   callbackRef.current = onMediaPushed
 
   useEffect(() => {
+    const token = sessionStorage.getItem('ads2026_token')
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL, { withCredentials: true })
+      .withUrl(HUB_URL, {
+        withCredentials: true,
+        accessTokenFactory: () => token || '',
+      })
       .withAutomaticReconnect()
       .build()
 

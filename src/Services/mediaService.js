@@ -1,16 +1,21 @@
-// src/Services/mediaService.js
 import * as signalR from '@microsoft/signalr'
 
 export const BASE_URL = import.meta.env.VITE_API_URL
 
-// ─── SignalR Connection (singleton) ───────────────────────────────────────────
+function authHeaders() {
+  const token = sessionStorage.getItem('ads2026_token')
+  return token ? { 'Authorization': `Bearer ${token}` } : {}
+}
+
 let connection = null
 
 export const getSignalRConnection = () => {
   if (!connection) {
+    const token = sessionStorage.getItem('ads2026_token')
     connection = new signalR.HubConnectionBuilder()
       .withUrl(`${BASE_URL}/mediaHub`, {
         withCredentials: true,
+        accessTokenFactory: () => token || '',
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
@@ -28,11 +33,10 @@ export const startSignalR = async () => {
   return conn
 }
 
-// ─── GET all media ────────────────────────────────────────────────────────────
 export const getMediaList = async () => {
   const response = await fetch(`${BASE_URL}/api/Media`, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
   })
 
   if (!response.ok) {
@@ -42,11 +46,10 @@ export const getMediaList = async () => {
   return await response.json()
 }
 
-// ─── GET media filtered by type (image | video) ───────────────────────────────
 export const getMediaByType = async (fileType) => {
   const response = await fetch(`${BASE_URL}/api/Media/type/${fileType}`, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
   })
 
   if (!response.ok) {
@@ -56,11 +59,10 @@ export const getMediaByType = async (fileType) => {
   return await response.json()
 }
 
-// ─── Push a specific media item to one or more named TVs, or all ──────────────
 export const pushToTV = async (id, { screens = [], all = true } = {}) => {
   const response = await fetch(`${BASE_URL}/api/Media/${id}/push`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ screens, all }),
   })
 
@@ -70,21 +72,20 @@ export const pushToTV = async (id, { screens = [], all = true } = {}) => {
 
   return await response.json()
 }
-// ─── POST upload image ──
-// Sends the file + optional metadata (caption, duration, screen) to the API.
-// The API should handle broadcasting via SignalR on the backend.
-export const uploadMedia = async (file, caption = '', duration = 10, screen = 'all') => {
+
+export const uploadMedia = async (file, title = '', duration = 10, screen = 'all', description = '') => {
   const formData = new FormData()
   formData.append('file', file)
 
-  // Optional metadata — only append if your API supports these fields
-  if (caption) formData.append('caption', caption)
+  if (title) formData.append('title', title)
+  if (description) formData.append('description', description)
   if (duration) formData.append('duration', duration)
   if (screen) formData.append('screen', screen)
 
   const response = await fetch(`${BASE_URL}/api/Media/upload`, {
     method: 'POST',
     body: formData,
+    headers: authHeaders(),
   })
 
   if (!response.ok) {

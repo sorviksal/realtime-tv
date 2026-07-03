@@ -58,24 +58,38 @@ export default function TVScreenById() {
     >
       {/* ── Content ── */}
       {media && !error ? (
-        isVideo ? (
-          <video
-            key={mediaUrl(media.fileUrl)}
-            src={mediaUrl(media.fileUrl)}
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-          />
-        ) : (
-          <img
-            key={mediaUrl(media.fileUrl)}
-            src={mediaUrl(media.fileUrl)}
-            alt={media.fileName}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-          />
-        )
+        <>
+          {isVideo ? (
+            <video
+              key={mediaUrl(media.fileUrl)}
+              src={mediaUrl(media.fileUrl)}
+              autoPlay
+              loop
+              muted
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          ) : (
+            <img
+              key={mediaUrl(media.fileUrl)}
+              src={mediaUrl(media.fileUrl)}
+              alt={media.fileName}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          )}
+          {(media.title || media.description) && (
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+              padding: '60px 32px 28px',
+              color: '#fff',
+              textAlign: 'center',
+            }}>
+              {media.title && <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>{media.title}</p>}
+              {media.description && <p style={{ fontSize: '1rem', opacity: 0.85, margin: '4px 0 0' }}>{media.description}</p>}
+            </div>
+          )}
+        </>
       ) : loading ? (
         <div style={screenStateStyle}>
           <span style={{ fontSize: '0.85rem', letterSpacing: '0.05em', color: '#555' }}>

@@ -8,8 +8,12 @@ export function useScreenPresence(onScreenOffline) {
   callbackRef.current = onScreenOffline
 
   useEffect(() => {
+    const token = sessionStorage.getItem('ads2026_token')
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL, { withCredentials: true })
+      .withUrl(HUB_URL, {
+        withCredentials: true,
+        accessTokenFactory: () => token || '',
+      })
       .withAutomaticReconnect()
       .build()
 

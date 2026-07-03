@@ -1,17 +1,31 @@
 import { useEffect, useState } from 'react'
-import { getMediaList, pushToTV } from '../Services/mediaService'
-import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, FileStack, AlertTriangle, MapPin, Layers, Check } from 'lucide-react'
+import { getMediaList, pushToTV, BASE_URL } from '../Services/mediaService'
+import { Trash2, ImageIcon, Film, RefreshCw, AlertCircle, CheckCircle2, X, Tv, FileStack, AlertTriangle, MapPin, Layers, Check, Pencil } from 'lucide-react'
 import { useLiveMedia } from '../context/LiveMediaContext'
 import { useScreenPresence } from '../hooks/useScreenPresence'
-const BASE_URL = import.meta.env.VITE_API_URL
+
+function authHeaders() {
+  const token = sessionStorage.getItem('ads2026_token')
+  return token ? { 'Authorization': `Bearer ${token}` } : {}
+}
 
 const deleteMedia = async (id) => {
-  const res = await fetch(`${BASE_URL}/api/Media/${id}`, { method: 'DELETE' })
+  const res = await fetch(`${BASE_URL}/api/Media/${id}`, { method: 'DELETE', headers: { ...authHeaders() } })
   if (!res.ok) throw new Error('Delete failed')
 }
 
+const updateMedia = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/api/Media/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error('Update failed')
+  return res.json()
+}
+
 const getTVs = async () => {
-  const res = await fetch(`${BASE_URL}/api/TV`)
+  const res = await fetch(`${BASE_URL}/api/TV`, { headers: { ...authHeaders() } })
   if (!res.ok) throw new Error('Failed to load TVs')
   return res.json()
 }
@@ -34,6 +48,12 @@ export default function ImageHistory() {
   const [confirmTarget, setConfirmTarget] = useState(null)
   const [status, setStatus]         = useState(null)
   const [filter, setFilter]         = useState('all')
+
+  // ── Edit modal state ──
+  const [editTarget, setEditTarget] = useState(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+  const [editSaving, setEditSaving] = useState(false)
 
   // ── TV picker modal state ──
   const [pushTarget, setPushTarget] = useState(null)   // { id, fileName } media being pushed
@@ -315,9 +335,17 @@ export default function ImageHistory() {
             </div>
 
                 <div className="p-4">
-                  <p className="text-sm font-semibold text-slate-800 truncate mb-1" title={media.fileName}>
+                  {media.title && (
+                    <p className="text-sm font-bold text-slate-900 truncate mb-0.5" title={media.title}>
+                      {media.title}
+                    </p>
+                  )}
+                  {/* <p className="text-xs text-slate-500 line-clamp-2 mb-1" title={media.fileName}>
                     {media.fileName}
-                  </p>
+                  </p> */}
+                  {media.description && (
+                    <p className="text-xs text-slate-500 line-clamp-2 mb-1">{media.description}</p>
+                  )}
                   <p className="text-xs text-slate-400 mb-4">
                     {formatDate(media.createdAt)}
                   </p>
@@ -444,6 +472,33 @@ export default function ImageHistory() {
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors cursor-pointer"
               >
                 <Tv size={14} /> Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Modal ── */}
+      {editTarget && (
+        <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-6" onClick={closeEdit}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative px-8 py-9" onClick={(e) => e.stopPropagation()}>
+            <button onClick={closeEdit} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"><X size={18} /></button>
+            <h2 className="text-base font-bold text-slate-800 mb-1">Edit Media</h2>
+            <p className="text-xs text-slate-400 mb-6">{editTarget.fileName}</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+                <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none" />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button onClick={closeEdit} className="border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors cursor-pointer">Cancel</button>
+              <button onClick={saveEdit} disabled={editSaving} className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors disabled:opacity-50 cursor-pointer">
+                {editSaving ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>
