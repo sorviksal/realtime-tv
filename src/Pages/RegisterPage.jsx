@@ -189,7 +189,9 @@ export default function RegisterPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <button onClick={() => { setChangePwTarget(u); setNewPassword(''); setShowNewPw(false) }} className="text-slate-300 hover:text-indigo-500 transition-colors cursor-pointer p-1" title="Change password"><KeyRound size={15} /></button>
-                    <button onClick={() => setConfirmDelete(u)} className="text-slate-300 hover:text-rose-500 transition-colors cursor-pointer p-1"><Trash2 size={15} /></button>
+                    {u.role !== 'admin' && (
+                      <button onClick={() => setConfirmDelete(u)} className="text-slate-300 hover:text-rose-500 transition-colors cursor-pointer p-1" title="Delete user"><Trash2 size={15} /></button>
+                    )}
                   </div>
                 </div>
               ))}
