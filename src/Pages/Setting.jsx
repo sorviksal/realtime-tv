@@ -143,10 +143,10 @@ export default function Setting() {
   return (
     <div className="min-h-screen bg-slate-50">
 
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
-        <div>
-          <h1 className="text-lg font-bold text-slate-800">TV Settings</h1>
-          <p className="text-xs text-slate-400">Configure screens by floor and room — each TV gets its own URL.</p>
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 md:px-8 sticky top-0 z-10">
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold text-slate-800 truncate">TV Settings</h1>
+          <p className="text-xs text-slate-400 truncate">Configure screens by floor and room — each TV gets its own URL.</p>
         </div>
       </header>
 
@@ -177,7 +177,7 @@ export default function Setting() {
         </div>
       )}
 
-      <main className="p-8 max-w-4xl mx-auto">
+      <main className="p-4 md:p-8 max-w-4xl mx-auto">
 
         {/* ── Add TV ── */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-8">
@@ -245,7 +245,7 @@ export default function Setting() {
                       <div key={tv.id} className={`bg-white rounded-2xl border overflow-hidden transition-all
                         ${tv.enabled ? 'border-slate-200' : 'border-slate-100 opacity-55'}`}
                       >
-                        <div className="flex items-center gap-4 px-6 py-4">
+                        <div className="flex items-center gap-3 px-4 md:px-6 py-4">
                           <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
                             <Tv size={18} className="text-slate-500" />
                           </div>
@@ -265,7 +265,7 @@ export default function Setting() {
                             <Trash2 size={16} />
                           </button>
                         </div>
-                        <div className="flex items-center gap-3 px-6 py-2.5 bg-slate-50 border-t border-slate-100">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 px-4 md:px-6 py-2.5 bg-slate-50 border-t border-slate-100">
                           <code className="flex-1 text-xs text-slate-400 truncate font-mono">{tvUrl(tv.name)}</code>
                           <button onClick={() => handleCopy(tv.id, tv.name)} className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer shrink-0">
                             {copied === tv.id

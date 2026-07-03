@@ -115,10 +115,10 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
-        <div>
-          <h1 className="text-lg font-bold text-slate-800">User Management</h1>
-          <p className="text-xs text-slate-400">Create and manage system users.</p>
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 md:px-8 sticky top-0 z-10">
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold text-slate-800 truncate">User Management</h1>
+          <p className="text-xs text-slate-400 truncate">Create and manage system users.</p>
         </div>
       </header>
 
@@ -137,7 +137,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <main className="p-8 max-w-3xl mx-auto space-y-8">
+      <main className="p-4 md:p-8 max-w-3xl mx-auto space-y-8">
         {/* Create User */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center gap-3 mb-6">
@@ -179,7 +179,7 @@ export default function RegisterPage() {
           ) : (
             <div className="space-y-2">
               {users.map((u) => (
-                <div key={u.id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div key={u.id} className="flex items-center justify-between gap-2 px-4 py-3 rounded-xl bg-slate-50 border border-slate-100">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600 shrink-0">{u.username[0].toUpperCase()}</div>
                     <div>

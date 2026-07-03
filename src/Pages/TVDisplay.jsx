@@ -204,21 +204,21 @@ export default function ImageHistory() {
     <div className="min-h-screen bg-slate-50">
 
       {/* ── Topbar ── */}
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
-        <div>
-          <h1 className="text-lg font-bold text-slate-800">TV Display</h1>
-          <p className="text-xs text-slate-400">All files uploaded and sent to TV screens.</p>
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10">
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold text-slate-800 truncate">TV Display</h1>
+          <p className="text-xs text-slate-400 truncate">All files uploaded and sent to TV screens.</p>
         </div>
         <button
           onClick={loadMedia}
-          className="flex items-center gap-2 text-sm font-semibold text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 rounded-xl transition-colors cursor-pointer"
+          className="flex items-center gap-2 text-sm font-semibold text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 rounded-xl transition-colors cursor-pointer shrink-0"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          Refresh
+          <span className="hidden sm:inline">Refresh</span>
         </button>
       </header>
 
-      <main className="p-8 max-w-7xl mx-auto">
+      <main className="p-4 md:p-8 max-w-7xl mx-auto">
 
         {/* ── Toast Notification ── */}
         {status && (
@@ -256,7 +256,7 @@ export default function ImageHistory() {
         )}
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 lg:ml-0 ml-12">
           {[
             { label: 'Total Files', value: mediaList.length, icon: FileStack, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-600', valueColor: 'text-indigo-600', ring: 'hover:border-indigo-200' },
             { label: 'Images', value: imageCount, icon: ImageIcon, iconBg: 'bg-sky-50', iconColor: 'text-sky-600', valueColor: 'text-sky-600', ring: 'hover:border-sky-200' },
@@ -275,7 +275,7 @@ export default function ImageHistory() {
         </div>
 
         {/* ── Filter Tabs ── */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 lg:ml-0 ml-12">
           {['all', 'image', 'video'].map(f => (
             <button
               key={f}
@@ -289,20 +289,20 @@ export default function ImageHistory() {
         </div>
 
         {loading && (
-          <div className="flex items-center justify-center py-24 text-slate-400 text-sm">
+          <div className="flex items-center justify-center py-24 text-slate-400 text-sm lg:ml-0 ml-12">
             <RefreshCw size={18} className="animate-spin mr-2" /> Loading media...
           </div>
         )}
 
         {error && !loading && (
-          <div className="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-xl text-sm font-semibold">
+          <div className="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-xl text-sm font-semibold lg:ml-0 ml-12">
             <AlertCircle size={16} className="shrink-0" />
             {error}
           </div>
         )}
 
         {!loading && !error && filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-24 text-slate-400 lg:ml-0 ml-12">
             <ImageIcon size={40} className="mb-3 opacity-30" />
             <p className="text-sm font-semibold">No media found</p>
             <p className="text-xs mt-1">Upload an image or video to see it here.</p>
@@ -310,7 +310,7 @@ export default function ImageHistory() {
         )}
 
         {!loading && !error && filtered.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:ml-0 ml-12">
             {filtered.map((media) => (
               <div key={media.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow group">
                 <div className="relative w-full h-44 bg-slate-100">

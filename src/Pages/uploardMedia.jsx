@@ -101,10 +101,10 @@ export default function UploadImage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
-        <div>
-          <h1 className="text-lg font-bold text-slate-800">Upload New Media</h1>
-          <p className="text-xs text-slate-400">Upload media to display on TV in real-time.</p>
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center px-4 md:px-8 sticky top-0 z-10">
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold text-slate-800 truncate">Upload New Media</h1>
+          <p className="text-xs text-slate-400 truncate">Upload media to display on TV in real-time.</p>
         </div>
       </header>
 
@@ -123,7 +123,7 @@ export default function UploadImage() {
         </div>
       )}
 
-      <main className="p-8 max-w-3xl mx-auto">
+      <main className="p-4 md:p-8 max-w-3xl mx-auto">
         <div className={`w-full rounded-2xl border-2 border-dashed cursor-pointer transition-all flex flex-col items-center justify-center py-5 mb-8 ${dragging ? 'border-indigo-400 bg-indigo-50' : 'border-indigo-200 bg-indigo-50/40 hover:bg-indigo-50 hover:border-indigo-300'}`}
           onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
           onDragLeave={() => setDragging(false)}
@@ -140,12 +140,12 @@ export default function UploadImage() {
         {file && preview && (
           <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 space-y-5">
             <h2 className="text-sm font-bold text-slate-800">{isVideo(file) ? 'Video Preview' : 'Image Preview'}</h2>
-            <div className="flex items-start gap-5">
+            <div className="flex flex-col sm:flex-row items-start gap-5">
               {isVideo(file)
-                ? <video src={preview} controls className="w-48 h-32 object-cover rounded-xl border border-slate-200 shrink-0" />
-                : <img src={preview} alt="preview" className="w-48 h-32 object-cover rounded-xl border border-slate-200 shrink-0" />
+                ? <video src={preview} controls className="w-full sm:w-48 h-32 object-cover rounded-xl border border-slate-200 shrink-0" />
+                : <img src={preview} alt="preview" className="w-full sm:w-48 h-32 object-cover rounded-xl border border-slate-200 shrink-0" />
               }
-              <div className="flex-1">
+              <div className="flex-1 w-full sm:w-auto">
                 <p className="text-xs text-slate-400 mb-3">{formatSize(file.size)} &middot; {file.type}</p>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">File Name</label>
                 <div className="relative mb-4">
